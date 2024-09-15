@@ -1,0 +1,31 @@
+spring:
+  application:
+    #项目名称
+    name: user-center
+  #MySQL数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yupi
+    username: root
+    password: 123456
+
+#端口号
+server:
+  port: 8080
+  servlet:
+    #会话失效时间 1天
+    session:
+      timeout: 86400
+    context-path: /api
+
+mybatis:
+  mapper-locations:
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除字段名
+      logic-delete-value: 1 # 逻辑已删除值
+      logic-not-delete-value: 0 # 逻辑未删除值
