@@ -86,7 +86,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         //1、校验非空
-        // todo 修改为自定义异常
         if (StringUtils.isAnyBlank(userAccount,userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号密码为空");
         }
