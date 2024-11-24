@@ -1,22 +1,36 @@
 spring:
+  profiles:
+    active: dev
   application:
     #项目名称
-    name: user-center
+    name: yupao-backend
   #MySQL数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/yupi
     username: root
     password: 123456
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+  #Redis配置
+  redis:
+    port: 6379
+    host: 10.159.0.101
+    database: 1
+  #会话失效时间（分钟）
+  session:
+    timeout: 86400 #两个月
+    store-type: redis
 
 #端口号
 server:
   port: 8080
   servlet:
-    #会话失效时间 1天
-    session:
-      timeout: 86400
     context-path: /api
+    session:
+      cookie:
+        domain: localhost
 
 mybatis:
   mapper-locations:
@@ -24,6 +38,7 @@ mybatis:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       logic-delete-field: isDelete # 全局逻辑删除字段名
