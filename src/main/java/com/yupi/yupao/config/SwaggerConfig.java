@@ -27,7 +27,7 @@ public class SwaggerConfig {
                 .apiInfo(apiInfo())
                 .select()
                 // 这里一定要标注控制器的位置
-                .apis(RequestHandlerSelectors.basePackage("com.yupi.usercenter.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.yupi.yupao.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -38,10 +38,10 @@ public class SwaggerConfig {
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("用户中心")
-                .description("用户中心接口文档")
+                .title("伙伴匹配")
+                .description("伙伴匹配接口文档")
                 .termsOfServiceUrl("https://github.com/LXRkk")
-                .contact(new Contact("LXRkk", "https://github.com/LXRkk","xxx@qq.com"))
+                .contact(new Contact("LXRkk", "https://github.com/LXRkk","3501816815@qq.com"))
                 .version("1.0")
                 .build();
     }
