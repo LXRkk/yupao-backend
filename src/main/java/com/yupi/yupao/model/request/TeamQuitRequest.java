@@ -5,12 +5,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 加入队伍请求体
+ * 退出队伍请求体
  * @author 罗秀让
  * @version 1.0
  */
 @Data
-public class TeamJoinRequest implements Serializable {
+public class TeamQuitRequest implements Serializable {
 
     private static final long serialVersionUID = -2799635978045938170L;
 
@@ -18,9 +18,4 @@ public class TeamJoinRequest implements Serializable {
      * 队伍 id
      */
     private Long teamId;
-
-    /**
-     * 密码
-     */
-    private String password;
 }

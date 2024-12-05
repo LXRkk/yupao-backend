@@ -2,7 +2,10 @@ package com.yupi.yupao.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yupi.yupao.model.User;
 import com.yupi.yupao.model.UserTeam;
+
+import java.util.List;
 
 /**
 * @author Chris

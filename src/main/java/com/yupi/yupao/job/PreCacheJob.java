@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.yupi.yupao.constant.ReddissonLock.PRE_CACHE_JOB_LOCK;
+
 /**
  * 数据预热
  *
@@ -42,7 +44,7 @@ public class PreCacheJob {
     // 每天执行，预热推荐用户
     @Scheduled(cron ="0 54 16 * * *")
     public void doCacheRecommendUser() {
-        RLock lock = redissonClient.getLock("yupao:precachejob:docache:lock");
+        RLock lock = redissonClient.getLock(PRE_CACHE_JOB_LOCK);
         try {
             if (lock.tryLock(0,-1L,TimeUnit.MILLISECONDS)) {
                 System.out.println("getLock:" + Thread.currentThread().getId());

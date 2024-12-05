@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 创建队伍包装类
+ * 创建队伍请求体
  * @author 罗秀让
  * @version 1.0
  */

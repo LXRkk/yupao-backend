@@ -9,21 +9,21 @@ import com.yupi.yupao.exception.BusinessException;
 import com.yupi.yupao.model.User;
 import com.yupi.yupao.service.UserService;
 import com.yupi.yupao.mapper.UserMapper;
+import com.yupi.yupao.utils.AlgorithmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.yupi.yupao.constant.UserConstant.ADMIN_ROLE;
 import static com.yupi.yupao.constant.UserConstant.USER_LOGIN_STATE;
@@ -255,6 +255,57 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public boolean isAdmin(User loginUser) {
         // 仅管理员具备查询权限
         return loginUser != null && loginUser.getUserRole() == ADMIN_ROLE;
+    }
+
+    @Override
+    public List<User> matchUsers(long num, User loginUser) {
+        String tags = loginUser.getTags();
+        if (StringUtils.isBlank(tags)) {
+            return new ArrayList<>();
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        // 过滤掉标签为空的用户
+        queryWrapper.isNotNull("tags");
+        // 只查需要的数据（比如 id 和 tags）
+        queryWrapper.select("id", "tags");
+        List<User> userList = this.list(queryWrapper);
+        // 将 json 字符串转成列表
+        Gson gson = new Gson();
+        List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
+        // 用户 => 相似度
+        ArrayList<Pair<User, Long>> list = new ArrayList<>();
+        // 依次计算所有用户与当前用户的相似度
+        for (User user : userList) {
+            String userTags = user.getTags();
+            // 无标签或者为当前用户自己
+            if (StringUtils.isBlank(userTags) || user.getId() == loginUser.getId()) {
+                continue;
+            }
+            // 将 json 字符串转成列表
+            List<String> userTagList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+            }.getType());
+            // 计算分数
+            long distance = AlgorithmUtils.minDistance(tagList, userTagList);
+            list.add(new Pair<>(user, distance));
+        }
+        // 按编辑距离由小到大排序
+        List<Pair<User, Long>> topUserPairList = list.stream()
+                .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
+                .limit(num)
+                .collect(Collectors.toList());
+        // 获取排序后的用户 id 列表
+        List<Long> userIdList = topUserPairList.stream().map(pair -> pair.getKey().getId()).collect(Collectors.toList());
+        // 根据 id 查询用户并对用户信息进行脱敏，根据 id 分组，id =》 User
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.in("id",userIdList);
+        Map<Long, List<User>> userIdUserListMap = this.list(userQueryWrapper).stream().map(this::getSafetyUser).collect(Collectors.groupingBy(User::getId));
+        List<User> finalUserList = new ArrayList<>();
+        for (Long userId : userIdList) {
+            User user = userIdUserListMap.get(userId).get(0);
+            finalUserList.add(user);
+        }
+        return finalUserList;
     }
 
     /**
